@@ -53,6 +53,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_office.OfficeIngester.get_document_versions"><code class="docutils literal notranslate"><span class="pre">OfficeIngester.get_document_versions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_office.OfficeIngester.filter_documents_by_user"><code class="docutils literal notranslate"><span class="pre">OfficeIngester.filter_documents_by_user()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_office.OfficeIngester.download_document"><code class="docutils literal notranslate"><span class="pre">OfficeIngester.download_document()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_office.OfficeIngester.list_local_documents"><code class="docutils literal notranslate"><span class="pre">OfficeIngester.list_local_documents()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_office.OfficeIngester.extract_text_from_docx"><code class="docutils literal notranslate"><span class="pre">OfficeIngester.extract_text_from_docx()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_office.OfficeIngester.extract_images_from_docx"><code class="docutils literal notranslate"><span class="pre">OfficeIngester.extract_images_from_docx()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_office.OfficeIngester.extract_text_from_pptx"><code class="docutils literal notranslate"><span class="pre">OfficeIngester.extract_text_from_pptx()</span></code></a></li>
@@ -110,15 +111,15 @@
 <span></span><span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
 <span class="kn">from</span> <span class="nn">msal</span> <span class="kn">import</span> <span class="n">ConfidentialClientApplication</span>
 <span class="kn">from</span> <span class="nn">docx</span> <span class="kn">import</span> <span class="n">Document</span>
 <span class="kn">from</span> <span class="nn">pptx</span> <span class="kn">import</span> <span class="n">Presentation</span>
 <span class="kn">from</span> <span class="nn">openpyxl</span> <span class="kn">import</span> <span class="n">load_workbook</span>
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 
 <div class="viewcode-block" id="OfficeIngester">
@@ -126,16 +127,7 @@
 <span class="k">class</span> <span class="nc">OfficeIngester</span><span class="p">:</span>
 <div class="viewcode-block" id="OfficeIngester.__init__">
 <a class="viewcode-back" href="../source/modules.html#ingest_office.OfficeIngester.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">site_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">user_email</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">download_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">client_secret</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">tenant_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">site_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">user_email</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">download_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the OfficeIngester with necessary credentials and configurations.</span>
 
@@ -145,16 +137,25 @@
 <span class="sd">        :param site_id: The ID of the SharePoint site.</span>
 <span class="sd">        :param user_email: The email of the user whose contributions to search for.</span>
 <span class="sd">        :param download_dir: The directory to download and save the documents.</span>
+<span class="sd">        :param source: The source of the documents (&#39;sharepoint&#39; or &#39;local&#39;).</span>
 <span class="sd">        :param batch_size: The number of documents to process in each batch.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">=</span> <span class="n">tenant_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">site_id</span> <span class="o">=</span> <span class="n">site_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_email</span> <span class="o">=</span> <span class="n">user_email</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;local&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">site_id</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_email</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">=</span> <span class="n">tenant_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">site_id</span> <span class="o">=</span> <span class="n">site_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_email</span> <span class="o">=</span> <span class="n">user_email</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span> <span class="o">=</span> <span class="n">download_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_access_token</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_access_token</span><span class="p">()</span> <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;sharepoint&#39;</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="OfficeIngester.get_access_token">
@@ -167,14 +168,8 @@
 <span class="sd">        :raises Exception: If the access token cannot be obtained.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">authority</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://login.microsoftonline.com/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">app</span> <span class="o">=</span> <span class="n">ConfidentialClientApplication</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span> <span class="n">authority</span><span class="o">=</span><span class="n">authority</span><span class="p">,</span> <span class="n">client_credential</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span>
-        <span class="p">)</span>
-
-        <span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">acquire_token_for_client</span><span class="p">(</span>
-            <span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;https://graph.microsoft.com/.default&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-
+        <span class="n">app</span> <span class="o">=</span> <span class="n">ConfidentialClientApplication</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span> <span class="n">authority</span><span class="o">=</span><span class="n">authority</span><span class="p">,</span> <span class="n">client_credential</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">acquire_token_for_client</span><span class="p">(</span><span class="n">scopes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;https://graph.microsoft.com/.default&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="s2">&quot;access_token&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;access_token&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -190,10 +185,7 @@
 <span class="sd">        :return: A dictionary containing the list of documents.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
-        <span class="n">drive_items_url</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;https://graph.microsoft.com/v1.0/sites/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site_id</span><span class="si">}</span><span class="s2">/drive/root/children&quot;</span>
-        <span class="p">)</span>
-
+        <span class="n">drive_items_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://graph.microsoft.com/v1.0/sites/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site_id</span><span class="si">}</span><span class="s2">/drive/root/children&quot;</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">drive_items_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
         <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
@@ -210,7 +202,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
         <span class="n">versions_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://graph.microsoft.com/v1.0/sites/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site_id</span><span class="si">}</span><span class="s2">/drive/items/</span><span class="si">{</span><span class="n">item_id</span><span class="si">}</span><span class="s2">/versions&quot;</span>
-
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">versions_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
         <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span></div>
@@ -218,9 +209,7 @@
 
 <div class="viewcode-block" id="OfficeIngester.filter_documents_by_user">
 <a class="viewcode-back" href="../source/modules.html#ingest_office.OfficeIngester.filter_documents_by_user">[docs]</a>
-    <span class="k">def</span> <span class="nf">filter_documents_by_user</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">drive_items</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">filter_documents_by_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drive_items</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Filter documents by the specified user.</span>
 
@@ -231,10 +220,7 @@
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">drive_items</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]:</span>
             <span class="n">versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_document_versions</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">versions</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="s2">&quot;lastModifiedBy&quot;</span> <span class="ow">in</span> <span class="n">version</span>
-                    <span class="ow">and</span> <span class="n">version</span><span class="p">[</span><span class="s2">&quot;lastModifiedBy&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">][</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_email</span>
-                <span class="p">):</span>
+                <span class="k">if</span> <span class="s2">&quot;lastModifiedBy&quot;</span> <span class="ow">in</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">version</span><span class="p">[</span><span class="s2">&quot;lastModifiedBy&quot;</span><span class="p">][</span><span class="s2">&quot;user&quot;</span><span class="p">][</span><span class="s2">&quot;email&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_email</span><span class="p">:</span>
                     <span class="n">filtered_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
                     <span class="k">break</span>
         <span class="k">return</span> <span class="n">filtered_items</span></div>
@@ -251,10 +237,22 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
         <span class="n">download_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://graph.microsoft.com/v1.0/sites/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site_id</span><span class="si">}</span><span class="s2">/drive/items/</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">/content&quot;</span>
-
         <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">download_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
         <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span></div>
+
+
+<div class="viewcode-block" id="OfficeIngester.list_local_documents">
+<a class="viewcode-back" href="../source/modules.html#ingest_office.OfficeIngester.list_local_documents">[docs]</a>
+    <span class="k">def</span> <span class="nf">list_local_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List documents in the local directory.</span>
+
+<span class="sd">        :return: A list of file paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">supported_extensions</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.docx&#39;</span><span class="p">,</span> <span class="s1">&#39;.pptx&#39;</span><span class="p">,</span> <span class="s1">&#39;.xlsx&#39;</span><span class="p">)</span>
+        <span class="n">documents</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">supported_extensions</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">documents</span></div>
 
 
 <div class="viewcode-block" id="OfficeIngester.extract_text_from_docx">
@@ -278,21 +276,15 @@
 <span class="sd">        Extract images from a DOCX file.</span>
 
 <span class="sd">        :param file_path: The path to the DOCX file.</span>
-<span class="sd">        :return: A list of paths to the extracted images.</span>
+<span class="sd">        :return: A list of base64-encoded strings of the extracted images.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
         <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
-
         <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">part</span><span class="o">.</span><span class="n">rels</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="s2">&quot;image&quot;</span> <span class="ow">in</span> <span class="n">rel</span><span class="o">.</span><span class="n">target_ref</span><span class="p">:</span>
                 <span class="n">img</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">target_part</span><span class="o">.</span><span class="n">blob</span>
-                <span class="n">img_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">target_ref</span><span class="p">)</span>
-                <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">img_name</span><span class="p">)</span>
-
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">img_file</span><span class="p">:</span>
-                    <span class="n">img_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
-
+                <span class="n">img_base64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_base64</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">images</span></div>
 
 
@@ -306,12 +298,7 @@
 <span class="sd">        :return: Extracted text as a string.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prs</span> <span class="o">=</span> <span class="n">Presentation</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-        <span class="n">full_text</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">shape</span><span class="o">.</span><span class="n">text</span>
-            <span class="k">for</span> <span class="n">slide</span> <span class="ow">in</span> <span class="n">prs</span><span class="o">.</span><span class="n">slides</span>
-            <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">)</span>
-        <span class="p">]</span>
+        <span class="n">full_text</span> <span class="o">=</span> <span class="p">[</span><span class="n">shape</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">slide</span> <span class="ow">in</span> <span class="n">prs</span><span class="o">.</span><span class="n">slides</span> <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">)]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span></div>
 
 
@@ -322,29 +309,25 @@
 <span class="sd">        Extract images from a PPTX file.</span>
 
 <span class="sd">        :param file_path: The path to the PPTX file.</span>
-<span class="sd">        :return: A list of paths to the extracted images.</span>
+<span class="sd">        :return: A list of base64-encoded strings of the extracted images.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prs</span> <span class="o">=</span> <span class="n">Presentation</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
         <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
-
         <span class="k">for</span> <span class="n">slide</span> <span class="ow">in</span> <span class="n">prs</span><span class="o">.</span><span class="n">slides</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">slide</span><span class="o">.</span><span class="n">shapes</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">):</span>
                     <span class="n">image</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">image</span>
                     <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">blob</span><span class="p">))</span>
-                    <span class="n">img_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">shape</span><span class="o">.</span><span class="n">shape_id</span><span class="si">}</span><span class="s2">.png&quot;</span>
-                    <span class="n">img_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">img_name</span><span class="p">)</span>
-                    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
-                    <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
-
+                    <span class="n">buffered</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+                    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buffered</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;PNG&quot;</span><span class="p">)</span>
+                    <span class="n">img_base64</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">buffered</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                    <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_base64</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">images</span></div>
 
 
 <div class="viewcode-block" id="OfficeIngester.extract_table_from_xlsx">
 <a class="viewcode-back" href="../source/modules.html#ingest_office.OfficeIngester.extract_table_from_xlsx">[docs]</a>
-    <span class="k">def</span> <span class="nf">extract_table_from_xlsx</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]]:</span>
+    <span class="k">def</span> <span class="nf">extract_table_from_xlsx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract tables from an XLSX file.</span>
 
@@ -353,12 +336,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">wb</span> <span class="o">=</span> <span class="n">load_workbook</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="p">[]</span>
-
         <span class="k">for</span> <span class="n">sheet</span> <span class="ow">in</span> <span class="n">wb</span><span class="o">.</span><span class="n">sheetnames</span><span class="p">:</span>
             <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="p">[</span><span class="n">sheet</span><span class="p">]</span>
             <span class="n">sheet_data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">ws</span><span class="o">.</span><span class="n">iter_rows</span><span class="p">(</span><span class="n">values_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
             <span class="n">table_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">sheet</span><span class="p">:</span> <span class="n">sheet_data</span><span class="p">})</span>
-
         <span class="k">return</span> <span class="n">table_data</span></div>
 
 
@@ -372,18 +353,19 @@
 <span class="sd">        :return: A list of dictionaries containing document metadata and content.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">batch_results</span> <span class="o">=</span> <span class="p">[]</span>
-
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">documents</span><span class="p">:</span>
-            <span class="n">file_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-            <span class="n">file_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_document</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
-            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;sharepoint&#39;</span><span class="p">:</span>
+                <span class="n">file_id</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="n">file_content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_document</span><span class="p">(</span><span class="n">file_id</span><span class="p">)</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file_content</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloaded: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">item</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file_content</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloaded: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Extract text and images based on file type</span>
             <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.docx&quot;</span><span class="p">):</span>
                 <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_text_from_docx</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
                 <span class="n">images</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_images_from_docx</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
@@ -400,13 +382,10 @@
 
             <span class="n">document_metadata</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
-                <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">file_id</span><span class="p">,</span>
                 <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span>
-                <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">,</span>
+                <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">item</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;sharepoint&#39;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">}</span>
-
             <span class="n">batch_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">document_metadata</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="n">batch_results</span></div>
 
 
@@ -414,62 +393,39 @@
 <a class="viewcode-back" href="../source/modules.html#ingest_office.OfficeIngester.run">[docs]</a>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run the OfficeIngester to download and process documents from SharePoint.</span>
+<span class="sd">        Run the OfficeIngester to download and process documents from SharePoint or local directory.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">drive_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_sharepoint_documents</span><span class="p">()</span>
-        <span class="n">documents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_documents_by_user</span><span class="p">(</span><span class="n">drive_items</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s1">&#39;sharepoint&#39;</span><span class="p">:</span>
+            <span class="n">drive_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_sharepoint_documents</span><span class="p">()</span>
+            <span class="n">documents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_documents_by_user</span><span class="p">(</span><span class="n">drive_items</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">documents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list_local_documents</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">documents</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">):</span>
-            <span class="n">batch</span> <span class="o">=</span> <span class="n">documents</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">]</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">documents</span><span class="p">[</span><span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
             <span class="n">batch_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
-            <span class="n">batch_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;batch_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.json&quot;</span>
-            <span class="p">)</span>
-
+            <span class="n">batch_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;batch_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">batch_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">batch_file</span><span class="p">:</span>
                 <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">batch_results</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Processed batch </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> and saved to </span><span class="si">{</span><span class="n">batch_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processed batch </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> and saved to </span><span class="si">{</span><span class="n">batch_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 </div>
 
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download and extract documents from a SharePoint site.&quot;</span>
-    <span class="p">)</span>
-
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;client_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The client ID of the Azure AD app.&quot;</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;client_secret&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The client secret of the Azure AD app.&quot;</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;tenant_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The tenant ID of the Azure AD app.&quot;</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;site_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The ID of the SharePoint site.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;user_email&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The email of the user whose contributions to search for.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;download_dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The directory to download and save the documents.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--batch_size&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of documents to process in each batch.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download and extract documents from a SharePoint site or local directory.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--client_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The client ID of the Azure AD app.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--client_secret&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The client secret of the Azure AD app.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--tenant_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The tenant ID of the Azure AD app.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--site_id&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The ID of the SharePoint site.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--user_email&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The email of the user whose contributions to search for.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--download_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The directory to download and save the documents.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--source&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sharepoint&quot;</span><span class="p">,</span> <span class="s2">&quot;local&quot;</span><span class="p">],</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The source of the documents (&#39;sharepoint&#39; or &#39;local&#39;).&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--batch_size&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The number of documents to process in each batch.&quot;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="n">ingester</span> <span class="o">=</span> <span class="n">OfficeIngester</span><span class="p">(</span>
@@ -479,9 +435,9 @@
         <span class="n">site_id</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">site_id</span><span class="p">,</span>
         <span class="n">user_email</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">user_email</span><span class="p">,</span>
         <span class="n">download_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">download_dir</span><span class="p">,</span>
+        <span class="n">source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
     <span class="p">)</span>
-
     <span class="n">ingester</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 

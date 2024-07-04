@@ -2,16 +2,18 @@ import argparse
 import os
 import requests
 import json
+import base64
 from msal import ConfidentialClientApplication
 from docx import Document
 from pptx import Presentation
 from openpyxl import load_workbook
 from PIL import Image
 from io import BytesIO
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
+
 
 class OfficeIngester:
-    def __init__(self, client_id: str, client_secret: str, tenant_id: str, site_id: str, user_email: str, download_dir: str, source: str, batch_size: int = 10) -> None:
+    def __init__(self, client_id: Optional[str], client_secret: Optional[str], tenant_id: Optional[str], site_id: Optional[str], user_email: Optional[str], download_dir: str, source: str, batch_size: int = 10) -> None:
         """
         Initialize the OfficeIngester with necessary credentials and configurations.
 
@@ -24,11 +26,18 @@ class OfficeIngester:
         :param source: The source of the documents ('sharepoint' or 'local').
         :param batch_size: The number of documents to process in each batch.
         """
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.tenant_id = tenant_id
-        self.site_id = site_id
-        self.user_email = user_email
+        if source == 'local':
+            self.client_id = None
+            self.client_secret = None
+            self.tenant_id = None
+            self.site_id = None
+            self.user_email = None
+        else:
+            self.client_id = client_id
+            self.client_secret = client_secret
+            self.tenant_id = tenant_id
+            self.site_id = site_id
+            self.user_email = user_email
         self.download_dir = download_dir
         self.source = source
         self.batch_size = batch_size
@@ -129,18 +138,15 @@ class OfficeIngester:
         Extract images from a DOCX file.
 
         :param file_path: The path to the DOCX file.
-        :return: A list of paths to the extracted images.
+        :return: A list of base64-encoded strings of the extracted images.
         """
         doc = Document(file_path)
         images = []
         for rel in doc.part.rels.values():
             if "image" in rel.target_ref:
                 img = rel.target_part.blob
-                img_name = os.path.basename(rel.target_ref)
-                img_path = os.path.join(self.download_dir, img_name)
-                with open(img_path, "wb") as img_file:
-                    img_file.write(img)
-                images.append(img_path)
+                img_base64 = base64.b64encode(img).decode('utf-8')
+                images.append(img_base64)
         return images
 
     def extract_text_from_pptx(self, file_path: str) -> str:
@@ -159,7 +165,7 @@ class OfficeIngester:
         Extract images from a PPTX file.
 
         :param file_path: The path to the PPTX file.
-        :return: A list of paths to the extracted images.
+        :return: A list of base64-encoded strings of the extracted images.
         """
         prs = Presentation(file_path)
         images = []
@@ -168,10 +174,10 @@ class OfficeIngester:
                 if hasattr(shape, "image"):
                     image = shape.image
                     img = Image.open(BytesIO(image.blob))
-                    img_name = f"{shape.shape_id}.png"
-                    img_path = os.path.join(self.download_dir, img_name)
-                    img.save(img_path)
-                    images.append(img_path)
+                    buffered = BytesIO()
+                    img.save(buffered, format="PNG")
+                    img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+                    images.append(img_base64)
         return images
 
     def extract_table_from_xlsx(self, file_path: str) -> List[Dict[str, List[List[Any]]]]:
@@ -210,7 +216,6 @@ class OfficeIngester:
                 file_path = item
                 file_name = os.path.basename(file_path)
 
-            # Extract text and images based on file type
             if file_name.endswith(".docx"):
                 text = self.extract_text_from_docx(file_path)
                 images = self.extract_images_from_docx(file_path)
@@ -227,7 +232,6 @@ class OfficeIngester:
 
             document_metadata = {
                 "name": file_name,
-                "id": item.get("id", None),
                 "content": content,
                 "metadata": item if self.source == 'sharepoint' else None,
             }
@@ -249,23 +253,26 @@ class OfficeIngester:
 
         for i in range(0, len(documents), self.batch_size):
             batch = documents[i: i + self.batch_size]
+            print(batch)
             batch_results = self.process_batch(batch)
             batch_file_path = os.path.join(self.download_dir, f"batch_{i // self.batch_size + 1}.json")
             with open(batch_file_path, "w") as batch_file:
                 json.dump(batch_results, batch_file, indent=4)
             print(f"Processed batch {i // self.batch_size + 1} and saved to {batch_file_path}")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download and extract documents from a SharePoint site or local directory.")
-    parser.add_argument("client_id", type=str, help="The client ID of the Azure AD app.")
-    parser.add_argument("client_secret", type=str, help="The client secret of the Azure AD app.")
-    parser.add_argument("tenant_id", type=str, help="The tenant ID of the Azure AD app.")
-    parser.add_argument("site_id", type=str, help="The ID of the SharePoint site.")
-    parser.add_argument("user_email", type=str, help="The email of the user whose contributions to search for.")
-    parser.add_argument("download_dir", type=str, help="The directory to download and save the documents.")
-    parser.add_argument("source", type=str, choices=["sharepoint", "local"], help="The source of the documents ('sharepoint' or 'local').")
+    parser.add_argument("--client_id", type=str, help="The client ID of the Azure AD app.")
+    parser.add_argument("--client_secret", type=str, help="The client secret of the Azure AD app.")
+    parser.add_argument("--tenant_id", type=str, help="The tenant ID of the Azure AD app.")
+    parser.add_argument("--site_id", type=str, help="The ID of the SharePoint site.")
+    parser.add_argument("--user_email", type=str, help="The email of the user whose contributions to search for.")
+    parser.add_argument("--download_dir", type=str, required=True, help="The directory to download and save the documents.")
+    parser.add_argument("--source", type=str, choices=["sharepoint", "local"], required=True, help="The source of the documents ('sharepoint' or 'local').")
     parser.add_argument("--batch_size", type=int, default=10, help="The number of documents to process in each batch.")
     args = parser.parse_args()
+
     ingester = OfficeIngester(
         client_id=args.client_id,
         client_secret=args.client_secret,
