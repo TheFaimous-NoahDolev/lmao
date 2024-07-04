@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ingest_slack &mdash; LMAO: Leave Me Alone Oracle 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            LMAO: Leave Me Alone Oracle
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/modules.html"><code class="docutils literal notranslate"><span class="pre">SlackIngestor</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_slack.SlackIngestor.__init__"><code class="docutils literal notranslate"><span class="pre">SlackIngestor.__init__()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_slack.SlackIngestor.refresh_access_token"><code class="docutils literal notranslate"><span class="pre">SlackIngestor.refresh_access_token()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_slack.SlackIngestor.fetch_conversations"><code class="docutils literal notranslate"><span class="pre">SlackIngestor.fetch_conversations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_slack.SlackIngestor.fetch_messages"><code class="docutils literal notranslate"><span class="pre">SlackIngestor.fetch_messages()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_slack.SlackIngestor.download_and_encode_file"><code class="docutils literal notranslate"><span class="pre">SlackIngestor.download_and_encode_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_slack.SlackIngestor.save_messages_to_file"><code class="docutils literal notranslate"><span class="pre">SlackIngestor.save_messages_to_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_slack.SlackIngestor.ingest"><code class="docutils literal notranslate"><span class="pre">SlackIngestor.ingest()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../source/modules.html#ingest_repo.GitLabIngestor"><code class="docutils literal notranslate"><span class="pre">GitLabIngestor</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_repo.GitLabIngestor.__init__"><code class="docutils literal notranslate"><span class="pre">GitLabIngestor.__init__()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_repo.GitLabIngestor.process_repository"><code class="docutils literal notranslate"><span class="pre">GitLabIngestor.process_repository()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_repo.GitLabIngestor._export_batch"><code class="docutils literal notranslate"><span class="pre">GitLabIngestor._export_batch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../source/modules.html#ingest_repo.GitLabIngestor.process_repositories"><code class="docutils literal notranslate"><span class="pre">GitLabIngestor.process_repositories()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../source/modules.html#ingest_repo.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LMAO: Leave Me Alone Oracle</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ingest_slack</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ingest_slack</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">slack_sdk</span> <span class="kn">import</span> <span class="n">WebClient</span>
+<span class="kn">from</span> <span class="nn">slack_sdk.errors</span> <span class="kn">import</span> <span class="n">SlackApiError</span>
+<span class="kn">from</span> <span class="nn">tenacity</span> <span class="kn">import</span> <span class="n">retry</span><span class="p">,</span> <span class="n">wait_exponential</span><span class="p">,</span> <span class="n">stop_after_attempt</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+
+<div class="viewcode-block" id="SlackIngestor">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor">[docs]</a>
+<span class="k">class</span> <span class="nc">SlackIngestor</span><span class="p">:</span>
+<div class="viewcode-block" id="SlackIngestor.__init__">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">refresh_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">max_messages_per_file</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the SlackIngestor with necessary credentials and configurations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            client_id (str): Slack Client ID.</span>
+<span class="sd">            client_secret (str): Slack Client Secret.</span>
+<span class="sd">            refresh_token (str): Slack Refresh Token.</span>
+<span class="sd">            output_dir (str): Output directory for saved messages.</span>
+<span class="sd">            max_messages_per_file (int): Maximum number of messages per file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span> <span class="o">=</span> <span class="n">refresh_token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_messages_per_file</span> <span class="o">=</span> <span class="n">max_messages_per_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SlackIngestor.refresh_access_token">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor.refresh_access_token">[docs]</a>
+    <span class="k">def</span> <span class="nf">refresh_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Refresh the Slack access token using the provided client ID, client secret, and refresh token.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://slack.com/api/oauth.v2.access&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;client_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span>
+            <span class="s2">&quot;client_secret&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">,</span>
+            <span class="s2">&quot;grant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;refresh_token&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;refresh_token&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">response_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">response_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">):</span>
+            <span class="n">new_access_token</span> <span class="o">=</span> <span class="n">response_data</span><span class="p">[</span><span class="s2">&quot;access_token&quot;</span><span class="p">]</span>
+            <span class="n">new_refresh_token</span> <span class="o">=</span> <span class="n">response_data</span><span class="p">[</span><span class="s2">&quot;refresh_token&quot;</span><span class="p">]</span>
+            <span class="c1"># Update your environment variables or secure storage</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SLACK_ACCESS_TOKEN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_access_token</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SLACK_REFRESH_TOKEN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_refresh_token</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">WebClient</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">new_access_token</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">new_access_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to refresh token:&quot;</span><span class="p">,</span> <span class="n">response_data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SlackIngestor.fetch_conversations">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor.fetch_conversations">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span>
+        <span class="n">wait</span><span class="o">=</span><span class="n">wait_exponential</span><span class="p">(</span><span class="n">multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fetch_conversations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the list of conversations (channels) from Slack.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Dict]: List of conversations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">conversations_list</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;channels&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="n">SlackApiError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching conversations: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="SlackIngestor.fetch_messages">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor.fetch_messages">[docs]</a>
+    <span class="nd">@retry</span><span class="p">(</span>
+        <span class="n">wait</span><span class="o">=</span><span class="n">wait_exponential</span><span class="p">(</span><span class="n">multiplier</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fetch_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the list of messages from a specific Slack channel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            channel_id (str): ID of the Slack channel.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Dict]: List of messages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">conversations_history</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="n">channel_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;messages&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="n">SlackApiError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching messages for channel </span><span class="si">{</span><span class="n">channel_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="SlackIngestor.download_and_encode_file">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor.download_and_encode_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">download_and_encode_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download a file from a URL and encode it in base64.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_url (str): URL of the file to download.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[str]: Base64 encoded file content, or None if the download failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">file_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download file from </span><span class="si">{</span><span class="n">file_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="SlackIngestor.save_messages_to_file">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor.save_messages_to_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_messages_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">messages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">file_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save a list of messages to a JSON file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            messages (List[Dict]): List of messages to save.</span>
+<span class="sd">            file_index (int): Index of the file (used in the filename).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;slack_messages_</span><span class="si">{</span><span class="n">file_index</span><span class="si">}</span><span class="s2">.json&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span><span class="si">}</span><span class="s2"> messages to </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SlackIngestor.ingest">
+<a class="viewcode-back" href="../source/modules.html#ingest_slack.SlackIngestor.ingest">[docs]</a>
+    <span class="k">def</span> <span class="nf">ingest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main function to download Slack messages and files, and save them to JSON files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Refresh the access token initially</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh_access_token</span><span class="p">()</span>
+
+        <span class="n">conversations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_conversations</span><span class="p">()</span>
+        <span class="n">all_messages</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">file_index</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">conversation</span> <span class="ow">in</span> <span class="n">conversations</span><span class="p">:</span>
+            <span class="n">channel_id</span> <span class="o">=</span> <span class="n">conversation</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="n">channel_name</span> <span class="o">=</span> <span class="n">conversation</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="n">messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_messages</span><span class="p">(</span><span class="n">channel_id</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+                <span class="n">message_data</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;channel_id&quot;</span><span class="p">:</span> <span class="n">channel_id</span><span class="p">,</span>
+                    <span class="s2">&quot;channel_name&quot;</span><span class="p">:</span> <span class="n">channel_name</span><span class="p">,</span>
+                    <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">message</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ts&quot;</span><span class="p">),</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="s2">&quot;files&quot;</span> <span class="ow">in</span> <span class="n">message</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">file_info</span> <span class="ow">in</span> <span class="n">message</span><span class="p">[</span><span class="s2">&quot;files&quot;</span><span class="p">]:</span>
+                        <span class="n">file_url</span> <span class="o">=</span> <span class="n">file_info</span><span class="p">[</span><span class="s2">&quot;url_private&quot;</span><span class="p">]</span>
+                        <span class="n">file_type</span> <span class="o">=</span> <span class="n">file_info</span><span class="p">[</span><span class="s2">&quot;filetype&quot;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">file_info</span><span class="p">[</span><span class="s2">&quot;mimetype&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;image/&quot;</span><span class="p">):</span>
+                            <span class="n">encoded_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_and_encode_file</span><span class="p">(</span><span class="n">file_url</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">encoded_image</span><span class="p">:</span>
+                                <span class="n">message_data</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                                    <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">file_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                                    <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="n">file_type</span><span class="p">,</span>
+                                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">encoded_image</span><span class="p">,</span>
+                                <span class="p">}</span>
+                        <span class="k">elif</span> <span class="n">file_info</span><span class="p">[</span><span class="s2">&quot;mimetype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">:</span>
+                            <span class="n">encoded_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_and_encode_file</span><span class="p">(</span><span class="n">file_url</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">encoded_text</span><span class="p">:</span>
+                                <span class="n">message_data</span><span class="p">[</span><span class="s2">&quot;text_snippet&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                                    <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">file_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                                    <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="n">file_type</span><span class="p">,</span>
+                                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">encoded_text</span><span class="p">,</span>
+                                <span class="p">}</span>
+                <span class="n">all_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message_data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_messages</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_messages_per_file</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">save_messages_to_file</span><span class="p">(</span><span class="n">all_messages</span><span class="p">,</span> <span class="n">file_index</span><span class="p">)</span>
+                    <span class="n">all_messages</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">file_index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Save any remaining messages</span>
+        <span class="k">if</span> <span class="n">all_messages</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_messages_to_file</span><span class="p">(</span><span class="n">all_messages</span><span class="p">,</span> <span class="n">file_index</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download Slack messages and files.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--client_id&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Slack Client ID&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--client_secret&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Slack Client Secret&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--refresh_token&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Slack Refresh Token&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output_dir&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory for saved messages&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--max_messages_per_file&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum number of messages per file&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">ingestor</span> <span class="o">=</span> <span class="n">SlackIngestor</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">client_secret</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">max_messages_per_file</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ingestor</span><span class="o">.</span><span class="n">ingest</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Noah Dolev.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

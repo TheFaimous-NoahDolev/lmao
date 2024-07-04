@@ -1,0 +1,12 @@
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+.. automodule:: ingest_office
+   :members:
+
+.. automodule:: ingest_slack
+   :members:
+
+.. automodule:: ingest_repo
+   :members:
