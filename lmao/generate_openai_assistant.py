@@ -76,7 +76,7 @@ def create_vector_store_with_files(file_ids: List[str], client: OpenAI) -> str:
     Returns:
         str: The ID of the created vector store.
     """
-    vector_store = client.beta.vector_stores.create(name="FiredNoah_Vector_Store")
+    vector_store = client.beta.vector_stores.create(name="GhostNoah_Vector_Store")
     vector_store_id = vector_store.id
     print(f"Created vector store ID: {vector_store_id}")
 
